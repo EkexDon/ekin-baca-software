@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ekin Baca Software</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: linksbündiger Einspalter wie ekinbaca.vercel.app. Große Versalien, Inhalte als Zeilen zwischen feinen Linien,
+   Medien in schlichten Rahmen mit Mono-Beschriftung. Orange nur für Linien, Fortschritt und die eine Hauptaktion. */
+:root{
+  --paper:#f5f3ee; --panel:#ebe8e1; --ink:#161513; --muted:rgba(22,21,19,.6); --line:rgba(22,21,19,.14); --line-strong:#161513;
+  --accent:#ff4d1f; --accent-text:#c2340a; --on-accent:#161513;
+  --f-display:"Space Grotesk",system-ui,sans-serif; --f-body:"Inter",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.7,0,1);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#161513; --panel:#1f1d1a; --ink:#f5f3ee; --muted:rgba(245,243,238,.6); --line:rgba(245,243,238,.15); --line-strong:#f5f3ee;
+  --accent:#ff4d1f; --accent-text:#ff7a52; --on-accent:#161513; color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#161513; --panel:#1f1d1a; --ink:#f5f3ee; --muted:rgba(245,243,238,.6); --line:rgba(245,243,238,.15); --line-strong:#f5f3ee;
+  --accent:#ff4d1f; --accent-text:#ff7a52; --on-accent:#161513; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font:400 16px/1.6 var(--f-body);margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--paper)}
+.wrap{max-width:1180px;margin:0 auto}
+a{color:inherit}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.mono{font:500 .72rem/1.4 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ink{color:var(--ink)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Fortschritt + Kopfzeile */
+.progress{position:fixed;left:0;top:env(safe-area-inset-top,0px);height:2px;width:100%;background:var(--accent);transform-origin:0 50%;transform:scaleX(0);z-index:70}
+header.site{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--paper);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding-block:18px;border-bottom:1px solid transparent;transition:border-color .3s}
+header.site.scrolled{border-bottom-color:var(--line)}
+header.site nav{display:flex;gap:26px}
+header.site nav a{text-decoration:none;color:var(--ink);position:relative}
+header.site nav a::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:0 50%;transition:transform .35s var(--ease)}
+header.site nav a:hover::after,header.site nav a.active::after{transform:scaleX(1)}
+header.site .right{justify-self:end;font-variant-numeric:tabular-nums}
+@media(max-width:720px){header.site{grid-template-columns:1fr auto}header.site nav{display:none}}
+
+/* Intro */
+#intro{position:fixed;inset:0;z-index:100;background:var(--paper);display:grid;grid-template-rows:auto 1fr auto;
+  padding:calc(20px + env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px));transition:transform .8s var(--ease)}
+#intro.out{transform:translateY(-100%)}
+#intro .top,#intro .bot{display:flex;justify-content:space-between;gap:16px}
+#intro .name{align-self:center;justify-self:center;font:700 clamp(3rem,13vw,10rem)/.9 var(--f-display);letter-spacing:-.04em;text-transform:uppercase;display:flex;overflow:hidden}
+#intro .name span{display:inline-block}
+#intro .bar{height:2px;background:var(--accent);transform-origin:0 50%;transform:scaleX(0);margin-bottom:14px}
+#intro .count{font-variant-numeric:tabular-nums}
+
+/* Hero */
+.hero{padding-block:clamp(40px,8vw,104px) 0}
+.hero-meta{display:flex;justify-content:space-between;gap:16px;margin-bottom:clamp(20px,4vw,40px)}
+h1{font:700 clamp(2.6rem,11vw,8.4rem)/.9 var(--f-display);letter-spacing:-.04em;text-transform:uppercase;margin:0}
+h1 .line{display:block;overflow:hidden;padding-bottom:.04em}
+h1 .w{display:inline-block}
+.js h1 .w{transform:translateY(105%);animation:up .9s var(--ease) forwards}
+h1 .line.l2{display:flex;flex-wrap:wrap;column-gap:.24em}
+.rot{display:block;position:relative;overflow:hidden;height:1.14em;margin-top:-.14em;color:var(--accent);transition:width .6s var(--ease)}
+.rot span{position:absolute;left:0;top:.14em;white-space:nowrap;line-height:1;transform:translateY(140%);transition:transform .7s var(--ease)}
+.rot span.on{transform:none}
+.rot span.off{transform:translateY(-140%)}
+.rule{height:3px;background:var(--accent);margin-block:clamp(28px,5vw,52px) 22px;transform-origin:0 50%}
+.js .rule{transform:scaleX(0);animation:grow 1.2s .5s var(--ease) forwards}
+.hero-row{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px 56px;align-items:end}
+.hero-row p{margin:0;font-size:clamp(1.05rem,1.6vw,1.25rem);max-width:38ch}
+.cta-wrap{justify-self:end;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:12px;background:var(--accent);color:var(--on-accent);font:500 .8rem/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;text-decoration:none;border:0;padding:18px 22px;min-height:48px;cursor:pointer;transition:transform .25s var(--ease),background-color .2s}
+.btn .arr{display:inline-block;transition:transform .3s var(--ease)}
+.btn:hover .arr{transform:translateX(4px)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line-strong)}
+@media(max-width:720px){.hero-row{grid-template-columns:1fr}.cta-wrap{justify-self:start;align-items:flex-start}}
+
+/* Laufband */
+.ticker{margin-top:clamp(56px,9vw,110px);border-block:1px solid var(--line-strong);overflow:hidden;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)))}
+.ticker .track{display:flex;width:max-content;animation:marquee 38s linear infinite}
+.ticker:hover .track{animation-play-state:paused}
+.ticker span{font:700 clamp(1.4rem,3vw,2.2rem)/1 var(--f-display);text-transform:uppercase;letter-spacing:-.01em;padding:18px 0;white-space:nowrap}
+.ticker span i{font-style:normal;color:var(--accent);padding-inline:.6em}
+
+/* Abschnitte */
+section.block{margin-top:clamp(80px,12vw,150px)}
+.sec-head{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line-strong);padding-bottom:12px}
+h2.big{font:700 clamp(2rem,6vw,4.4rem)/.95 var(--f-display);letter-spacing:-.035em;text-transform:uppercase;margin:28px 0 8px;text-wrap:balance}
+
+/* Angebot */
+.offer{position:relative;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,5fr) minmax(0,2.4fr);gap:10px 36px;padding-block:30px;border-bottom:1px solid var(--line);align-items:baseline;cursor:default}
+.offer h3{font:700 clamp(1.4rem,3.4vw,2.4rem)/1.05 var(--f-display);letter-spacing:-.02em;text-transform:uppercase;margin:0;transition:transform .5s var(--ease),color .3s}
+.offer h3 .arr{display:inline-block;color:var(--accent);opacity:0;transform:translateX(-12px);transition:opacity .3s,transform .4s var(--ease);margin-left:.2em}
+.offer p{margin:0;color:var(--muted);max-width:46ch}
+.offer .stack{justify-self:end;text-align:right}
+.offer .inline-media{display:none}
+@media(hover:hover) and (pointer:fine){
+  .offer:hover h3{transform:translateX(14px)}
+  .offer:hover h3 .arr{opacity:1;transform:none}
+}
+@media(hover:none),(max-width:760px){
+  .offer .inline-media{display:block;grid-column:1/-1;margin-top:10px}
+}
+@media(max-width:760px){.offer{grid-template-columns:1fr}.offer .stack{justify-self:start;text-align:left}}
+.float-media{position:fixed;left:0;top:0;width:min(380px,32vw);aspect-ratio:16/10;pointer-events:none;z-index:40;opacity:0;transform:translate(-50%,-50%) scale(.85);transition:opacity .25s,transform .35s var(--ease);background:var(--panel);border:1px solid var(--line-strong);overflow:hidden}
+.float-media.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.float-media video{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Medienrahmen */
+.frame{border:1px solid var(--line-strong);background:var(--panel);overflow:hidden}
+.frame .bar{display:flex;justify-content:space-between;gap:12px;padding:9px 12px;border-bottom:1px solid var(--line-strong)}
+.frame video,.frame img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;max-width:100%}
+
+/* Arbeit */
+.work{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:48px;margin-top:8px}
+.work-list{min-width:0}
+.work-item{padding-block:34px;border-bottom:1px solid var(--line);opacity:.38;transition:opacity .4s}
+.work-item.active{opacity:1}
+.work-item h3{font:700 clamp(1.6rem,3.6vw,2.8rem)/1 var(--f-display);letter-spacing:-.03em;text-transform:uppercase;margin:0 0 10px}
+.work-item p{margin:0 0 10px;color:var(--muted);max-width:44ch}
+.work-item a{color:var(--accent-text);text-decoration:none;font:500 .72rem/1.4 var(--f-mono);letter-spacing:.14em;text-transform:uppercase}
+.work-item a:hover{text-decoration:underline}
+.work-item .inline-media{display:none;margin-top:16px}
+.stage{position:sticky;top:calc(96px + env(safe-area-inset-top,0px));align-self:start;min-width:0}
+.stage .layers{position:relative;aspect-ratio:16/10}
+.stage .layers > *{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.04);transition:opacity .6s,transform 1.2s var(--ease)}
+.stage .layers > .on{opacity:1;transform:none}
+.stage .caption{font-variant-numeric:tabular-nums}
+@media(max-width:860px){.work{grid-template-columns:1fr;gap:0}.stage{display:none}.work-item{opacity:1}.work-item .inline-media{display:block}}
+
+/* Zahlen */
+.nums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:1px solid var(--line)}
+.num{padding:28px 20px 28px 0}
+.num + .num{padding-left:20px;border-left:1px solid var(--line)}
+.num b{display:block;font:700 clamp(2.4rem,6vw,4.6rem)/1 var(--f-display);letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin-bottom:10px}
+@media(max-width:760px){.nums{grid-template-columns:1fr 1fr}.num:nth-child(3){padding-left:0;border-left:0}.num:nth-child(n+3){border-top:1px solid var(--line)}}
+
+/* Ablauf */
+.steps{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding-top:26px}
+.steps .track{position:absolute;left:0;right:0;top:0;height:3px;background:var(--line)}
+.steps .fill{position:absolute;left:0;top:0;height:3px;width:100%;background:var(--accent);transform-origin:0 50%;transform:scaleX(0)}
+.step{padding:10px 24px 10px 0}
+.step .n{font:700 2.4rem/1 var(--f-display);color:var(--accent);margin-bottom:14px;display:block}
+.step b{display:block;font:700 1.05rem/1.2 var(--f-display);text-transform:uppercase;margin-bottom:6px}
+.step span.t{color:var(--muted);font-size:.95rem}
+@media(max-width:760px){.steps{grid-template-columns:1fr 1fr;gap:24px 0}}
+@media(max-width:440px){.steps{grid-template-columns:1fr}}
+
+/* Über */
+.about{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:48px;align-items:start;margin-top:32px}
+.about figure{margin:0}
+.about img{width:100%;max-width:100%;aspect-ratio:3/4;object-fit:cover;display:block;filter:grayscale(1) contrast(1.05);transition:filter .6s}
+.about figure:hover img{filter:none}
+.about figcaption{margin-top:10px}
+.about p{margin:0 0 14px;max-width:58ch;font-size:1.05rem}
+@media(max-width:700px){.about{grid-template-columns:1fr}.about figure{max-width:240px}}
+
+/* FAQ */
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:24px;padding-block:24px;font:700 clamp(1.05rem,2.2vw,1.45rem)/1.2 var(--f-display);text-transform:uppercase;letter-spacing:-.01em}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .pm{flex:none;width:18px;height:18px;position:relative}
+.faq summary .pm::before,.faq summary .pm::after{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:var(--accent);transition:transform .35s var(--ease)}
+.faq summary .pm::after{transform:rotate(90deg)}
+.faq details[open] summary .pm::after{transform:rotate(0)}
+.faq .ans{overflow:hidden}
+.faq .ans p{margin:0 0 24px;color:var(--muted);max-width:62ch}
+
+/* Kontakt */
+.builder{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;margin-top:36px}
+.group{margin-bottom:22px}
+.group .mono{display:block;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 .78rem/1 var(--f-mono);letter-spacing:.06em;background:transparent;color:var(--ink);border:1px solid var(--line-strong);padding:12px 14px;min-height:44px;cursor:pointer;transition:background-color .2s,color .2s,transform .2s var(--ease)}
+.chip:hover{transform:translateY(-2px)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.msg{width:100%;min-height:220px;resize:vertical;font:400 .95rem/1.6 var(--f-mono);color:var(--ink);background:var(--panel);border:1px solid var(--line-strong);padding:16px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;align-items:center}
+.mail{font:500 clamp(1.05rem,2.6vw,1.5rem)/1.2 var(--f-mono);word-break:break-all}
+.links{display:flex;gap:28px;flex-wrap:wrap;margin-top:28px}
+.links a{text-decoration:none;color:var(--ink)}
+.links a:hover{color:var(--accent-text)}
+@media(max-width:800px){.builder{grid-template-columns:1fr}}
+
+/* Fuß */
+footer{margin-top:clamp(90px,14vw,180px);border-top:1px solid var(--line-strong);padding-block:20px 28px}
+.giant{font:700 clamp(3.4rem,17.5vw,15rem)/.82 var(--f-display);letter-spacing:-.05em;text-transform:uppercase;display:flex;flex-wrap:wrap;margin:28px 0 22px;user-select:none}
+.giant span{display:inline-block;transition:transform .45s var(--ease),color .3s}
+.giant span.sp{width:.28em}
+@media(hover:hover){.giant span:hover{transform:translateY(-.12em);color:var(--accent)}}
+.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* Einblenden beim Scrollen (nur für Elemente unterhalb des ersten Bildschirms) */
+.rv{opacity:0;transform:translateY(28px);transition:opacity .9s var(--ease),transform 1s var(--ease)}
+.rv.in{opacity:1;transform:none}
+
+@keyframes up{to{transform:none}}
+@keyframes grow{to{transform:scaleX(1)}}
+@keyframes marquee{to{transform:translateX(-50%)}}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .js h1 .w,.js .rule{transform:none}
+  .rv{opacity:1;transform:none}
+  .float-media{display:none}
+}
+</style>
+<meta name="description" content="Lokale KI-Assistenten, Automatisierung und eigene Tools für kleine Betriebe in Stuttgart.">
+</head>
+<body>
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<div id="intro" hidden aria-hidden="true">
+  <div class="top mono"><span>Angebot — MMXXVI</span><span>Stuttgart · DE</span></div>
+  <div class="name" id="introName"></div>
+  <div><div class="bar" id="introBar"></div><div class="bot mono"><span class="count ink" id="introCount">000 / 100</span><span>Taste drücken zum Überspringen</span></div></div>
+</div>
+
+<div class="wrap">
+  <header class="site" id="top">
+    <a href="#top" class="mono ink" style="text-decoration:none">Ekin Baca</a>
+    <nav class="mono" aria-label="Abschnitte">
+      <a href="#angebot">Angebot</a><a href="#arbeit">Arbeit</a><a href="#ablauf">Ablauf</a><a href="#faq">Fragen</a><a href="#kontakt">Kontakt</a>
+    </nav>
+    <span class="mono right">STR <span id="clock">--:--:--</span></span>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="h1">
+      <div class="hero-meta mono"><span>Software für kleine Betriebe / 01</span><span>Lokal · ohne Cloud</span></div>
+      <h1 id="h1"><span class="sr">KI, die im Büro bleibt.</span>
+        <span class="line" aria-hidden="true"><span class="w" style="animation-delay:.05s">KI,</span> <span class="w" style="animation-delay:.12s">die</span> <span class="w" style="animation-delay:.19s">im</span></span>
+        <span class="line l2" aria-hidden="true"><span class="w" style="animation-delay:.28s"><span class="rot" id="rot"><span class="on">Büro</span><span>Betrieb</span><span>Haus</span><span>Netzwerk</span></span></span><span class="w" style="animation-delay:.36s">bleibt.</span></span>
+      </h1>
+      <div class="rule"></div>
+      <div class="hero-row">
+        <p>Ich baue lokale KI-Assistenten, Automatisierungen und eigene Tools für Kanzleien, Büros und kleine Betriebe in Stuttgart. Ihre Daten bleiben auf Ihren Rechnern.</p>
+        <div class="cta-wrap">
+          <a class="btn magnetic" href="#kontakt">Erstgespräch anfragen <span class="arr">→</span></a>
+          <span class="mono">Kostenlos · 30 Minuten · Festpreis danach</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="ticker" aria-hidden="true"><div class="track" id="track">
+      <span>Lokal<i>●</i>Ohne Cloud<i>●</i>RAG<i>●</i>Ollama<i>●</i>Python<i>●</i>FastAPI<i>●</i>React<i>●</i>Tauri<i>●</i>Rust<i>●</i>MCP<i>●</i>Automatisierung<i>●</i></span>
+    </div></div>
+
+    <section class="block" id="angebot" aria-labelledby="angebot-h">
+      <div class="sec-head mono"><span>Angebot / 03</span><span>Festpreis nach Gespräch</span></div>
+      <h2 class="big sr" id="angebot-h">Angebot</h2>
+      <div class="offer" data-video="media/docs.mp4" data-poster="media/docs.webp">
+        <h3>Dokumenten-Assistent<span class="arr">↗</span></h3>
+        <p>Fragen an die eigenen PDFs, Verträge und Notizen stellen. Antworten kommen mit Quellenangabe. Das Modell läuft lokal, die Unterlagen verlassen das Haus nicht.</p>
+        <span class="stack mono">RAG · Ollama · Python</span>
+        <div class="inline-media frame"><video src="media/docs.mp4" poster="media/docs.webp" muted loop playsinline preload="none" aria-label="Beispiel: ein Bericht entsteht"></video></div>
+      </div>
+      <div class="offer" data-video="media/crossmodule.mp4" data-poster="media/crossmodule.webp">
+        <h3>Automatisierung<span class="arr">↗</span></h3>
+        <p>Berichte, Dokumente und Abgleiche, die heute von Hand laufen, werden zu einem Ablauf. Aus einer Mail wird eine Aufgabe, aus einer Tabelle ein Bericht.</p>
+        <span class="stack mono">Python · APIs · Webhooks</span>
+        <div class="inline-media frame"><video src="media/crossmodule.mp4" poster="media/crossmodule.webp" muted loop playsinline preload="none" aria-label="Beispiel: aus einer Mail wird eine Aufgabe"></video></div>
+      </div>
+      <div class="offer" data-video="media/omnidesk.mp4" data-poster="media/omnidesk.webp">
+        <h3>Eigene Tools<span class="arr">↗</span></h3>
+        <p>Eine Weboberfläche oder Desktop-App für genau Ihren Ablauf, statt einer Software, die nur halb passt. Inklusive Übergabe des Quellcodes.</p>
+        <span class="stack mono">React · FastAPI · Tauri</span>
+        <div class="inline-media frame"><video src="media/omnidesk.mp4" poster="media/omnidesk.webp" muted loop playsinline preload="none" aria-label="Beispiel: OmniDesk Hub"></video></div>
+      </div>
+    </section>
+
+    <section class="block" id="arbeit" aria-labelledby="arbeit-h">
+      <div class="sec-head mono"><span>Ausgewählte Arbeit / 04</span><span>2024 — MMXXVI</span></div>
+      <h2 class="big sr" id="arbeit-h">Ausgewählte Arbeit</h2>
+      <div class="work">
+        <div class="work-list">
+          <article class="work-item active" data-i="0">
+            <div class="mono" style="margin-bottom:12px">2026 · Tauri 2 · Rust · React</div>
+            <h3>AETHER-OS</h3>
+            <p>Lokales Betriebssystem für den Alltag: Notizen, Code, Terminal, Aufgaben, Kalender und ein KI-Agent in einer App. 237 IPC-Befehle, verschlüsselte Sicherung, keine Telemetrie.</p>
+            <a href="https://ekinbaca.vercel.app/projects/aether-os">Projekt ansehen ↗</a>
+            <div class="inline-media frame"><video src="media/aether.mp4" poster="media/aether.webp" muted loop playsinline preload="none" aria-label="AETHER-OS in Aktion"></video></div>
+          </article>
+          <article class="work-item" data-i="1">
+            <div class="mono" style="margin-bottom:12px">2026 · Electron · React · MCP</div>
+            <h3>OmniDesk Hub</h3>
+            <p>Ein ruhiges Fenster für Mail, Kalender, Aufgaben, Dokumente und PDFs. Über einen MCP-Server kann Claude darin suchen und Einträge anlegen, mit Rückgängig und ohne Löschrechte.</p>
+            <a href="https://ekinbaca.vercel.app/projects/omnidesk">Projekt ansehen ↗</a>
+            <div class="inline-media frame"><video src="media/omnidesk.mp4" poster="media/omnidesk.webp" muted loop playsinline preload="none" aria-label="OmniDesk Hub in Aktion"></video></div>
+          </article>
+          <article class="work-item" data-i="2">
+            <div class="mono" style="margin-bottom:12px">2026 · Next.js · R3F · NestJS</div>
+            <h3>RepoVerse</h3>
+            <p>Jedes GitHub-Profil als begehbare 3D-Galaxie. Daten aus der GitHub-API, gerendert in Echtzeit im Browser.</p>
+            <a href="https://ekinbaca.vercel.app/projects/repoverse">Projekt ansehen ↗</a>
+            <div class="inline-media frame"><img src="media/repoverse.webp" alt="RepoVerse Bildschirmfoto" loading="lazy"></div>
+          </article>
+          <article class="work-item" data-i="3">
+            <div class="mono" style="margin-bottom:12px">2025 · Spring Boot · PostgreSQL · MQTT</div>
+            <h3>Sentio Systems</h3>
+            <p>Cloud-Plattform für lokale Umweltmessung. Als Backend-Lead: Microservices, Sensoranbindung per MQTT, Keycloak, Tests mit Testcontainers.</p>
+            <a href="https://ekinbaca.vercel.app/projects/sentio-systems">Projekt ansehen ↗</a>
+            <div class="inline-media frame"><img src="media/sentio-systems.webp" alt="Sentio Systems Bildschirmfoto" loading="lazy"></div>
+          </article>
+        </div>
+        <div class="stage" aria-hidden="true">
+          <div class="frame">
+            <div class="bar mono"><span class="caption" id="stageCap">AETHER-OS</span><span id="stageIdx">01 / 04</span></div>
+            <div class="layers" id="layers">
+              <video class="on" src="media/aether.mp4" poster="media/aether.webp" muted loop playsinline preload="metadata"></video>
+              <video src="media/omnidesk.mp4" poster="media/omnidesk.webp" muted loop playsinline preload="none"></video>
+              <img src="media/repoverse.webp" alt="" loading="lazy">
+              <img src="media/sentio-systems.webp" alt="" loading="lazy">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="nums-h">
+      <div class="sec-head mono"><span>Belege / 04</span><span>Aus echten Projekten</span></div>
+      <h2 class="sr" id="nums-h">Belege in Zahlen</h2>
+      <div class="nums">
+        <div class="num"><b data-to="237">237</b><span class="mono">IPC-Befehle in AETHER-OS</span></div>
+        <div class="num"><b data-to="1000" data-suffix="+">1.000+</b><span class="mono">Automatisierte Tests bei Lechler</span></div>
+        <div class="num"><b data-to="6">6</b><span class="mono">Produktiv-PRs in sechs Monaten</span></div>
+        <div class="num"><b data-to="15">15</b><span class="mono">Projekte im Portfolio</span></div>
+      </div>
+    </section>
+
+    <section class="block" id="ablauf" aria-labelledby="ablauf-h">
+      <div class="sec-head mono"><span>Ablauf / IV</span><span>Vom Gespräch zur Übergabe</span></div>
+      <h2 class="big" id="ablauf-h">Vier Schritte, ein Festpreis.</h2>
+      <div class="steps" id="steps">
+        <div class="track"><div class="fill" id="stepsFill"></div></div>
+        <div class="step"><span class="n">I</span><b>Gespräch</b><span class="t">30 Minuten. Sie sagen, was heute Zeit kostet.</span></div>
+        <div class="step"><span class="n">II</span><b>Angebot</b><span class="t">Festpreis, Umfang und Termin schriftlich.</span></div>
+        <div class="step"><span class="n">III</span><b>Bau</b><span class="t">Regelmäßiger Zwischenstand, früh eingreifen möglich.</span></div>
+        <div class="step"><span class="n">IV</span><b>Übergabe</b><span class="t">Quellcode, Dokumentation und Einweisung fürs Team.</span></div>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="ueber-h">
+      <div class="sec-head mono"><span>Wer baut das</span><span>HdM Stuttgart</span></div>
+      <div class="about">
+        <figure>
+          <img src="media/ekin.webp" alt="Porträt von Ekin Baca" loading="lazy">
+          <figcaption class="mono">Ekin Baca · Stuttgart</figcaption>
+        </figure>
+        <div>
+          <h2 class="big" id="ueber-h" style="margin-top:0">Ein Ansprechpartner, vom Gespräch bis zum Code.</h2>
+          <p>Ich studiere Medieninformatik an der Hochschule der Medien Stuttgart. Sechs Monate habe ich bei der Lechler GmbH in Data Science und KI-Automatisierung gearbeitet. Daneben habe ich mehrere eigene Apps gebaut und veröffentlicht.</p>
+          <p>Ich entwickle mit KI-Unterstützung und prüfe jede Lieferung mit automatisierten Tests. So bekommen Sie schnell ein Ergebnis, das trotzdem nachvollziehbar dokumentiert ist.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block faq" id="faq" aria-labelledby="faq-h">
+      <div class="sec-head mono"><span>Fragen / 05</span><span>Kurz beantwortet</span></div>
+      <h2 class="sr" id="faq-h">Häufige Fragen</h2>
+      <details><summary>Verlassen meine Daten das Büro?<span class="pm"></span></summary><div class="ans"><p>Nein, wenn Sie das so wollen. Das Sprachmodell und die Suche laufen auf einem Rechner bei Ihnen. Es gibt keine Verbindung zu einem Cloud-Dienst, außer Sie wünschen ausdrücklich eine.</p></div></details>
+      <details><summary>Was kostet das?<span class="pm"></span></summary><div class="ans"><p>Nach dem kostenlosen Erstgespräch bekommen Sie einen Festpreis für einen klar beschriebenen Umfang. Kleine Automatisierungen sind deutlich günstiger als ein Assistent für viele Nutzer. Es gibt keine versteckten Stunden.</p></div></details>
+      <details><summary>Welche Hardware brauche ich?<span class="pm"></span></summary><div class="ans"><p>Für kleine Modelle reicht oft ein aktueller Büro-PC oder Mac. Für größere Dokumentenmengen und mehrere Nutzer empfehle ich einen eigenen Rechner. Das klären wir im Gespräch, bevor Sie etwas kaufen.</p></div></details>
+      <details><summary>Was passiert nach der Übergabe?<span class="pm"></span></summary><div class="ans"><p>Sie bekommen den Quellcode, eine Dokumentation und eine Einweisung. Auf Wunsch übernehme ich Updates und Wartung zu einem festen Monatsbetrag.</p></div></details>
+      <details><summary>Warum ein Student und keine Agentur?<span class="pm"></span></summary><div class="ans"><p>Sie sprechen direkt mit der Person, die baut. Das ist schneller und günstiger. Meine Arbeit können Sie vorher ansehen: Alle Projekte oben sind veröffentlicht oder auf GitHub.</p></div></details>
+    </section>
+
+    <section class="block" id="kontakt" aria-labelledby="kontakt-h">
+      <div class="sec-head mono"><span>Kontakt</span><span>Stuttgart, Deutschland</span></div>
+      <h2 class="big" id="kontakt-h">Was soll schneller gehen?</h2>
+      <div class="builder">
+        <div>
+          <div class="group" data-group="need"><span class="mono">Worum geht es</span><div class="chips">
+            <button class="chip" type="button" id="c-need-1" aria-pressed="true">Dokumenten-Assistent</button>
+            <button class="chip" type="button" id="c-need-2" aria-pressed="false">Automatisierung</button>
+            <button class="chip" type="button" id="c-need-3" aria-pressed="false">Eigenes Tool</button>
+            <button class="chip" type="button" id="c-need-4" aria-pressed="false">Noch unklar</button>
+          </div></div>
+          <div class="group" data-group="time"><span class="mono">Zeitrahmen</span><div class="chips">
+            <button class="chip" type="button" id="c-time-1" aria-pressed="false">So bald wie möglich</button>
+            <button class="chip" type="button" id="c-time-2" aria-pressed="true">In 1–3 Monaten</button>
+            <button class="chip" type="button" id="c-time-3" aria-pressed="false">Noch offen</button>
+          </div></div>
+          <div class="group" data-group="budget"><span class="mono">Budget</span><div class="chips">
+            <button class="chip" type="button" id="c-bud-1" aria-pressed="false">Bis 2.000 €</button>
+            <button class="chip" type="button" id="c-bud-2" aria-pressed="false">2.000–5.000 €</button>
+            <button class="chip" type="button" id="c-bud-3" aria-pressed="false">Über 5.000 €</button>
+            <button class="chip" type="button" id="c-bud-4" aria-pressed="true">Weiß ich noch nicht</button>
+          </div></div>
+          <div class="group"><span class="mono">E-Mail</span>
+            <div class="actions" style="margin-top:0"><span class="mail" id="mailtext">baccaekin@gmail.com</span><button class="btn ghost" type="button" id="copyMail">Adresse kopieren</button></div>
+          </div>
+        </div>
+        <div>
+          <label class="mono" for="msg" style="display:block;margin-bottom:10px">Ihre Nachricht (anpassbar)</label>
+          <textarea class="msg" id="msg"></textarea>
+          <div class="actions">
+            <button class="btn magnetic" type="button" id="copyMsg">Nachricht kopieren <span class="arr">→</span></button>
+          </div>
+          <p class="mono" style="margin-top:12px">Kopieren und an die Adresse links schicken.</p>
+        </div>
+      </div>
+      <div class="links mono">
+        <a href="https://github.com/EkexDon">GitHub ↗</a>
+        <a href="https://www.linkedin.com/in/ekin-baca-8b927b379/">LinkedIn ↗</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="giant" id="giant" aria-label="Ekin Baca"></div>
+    <div class="foot mono"><span>Ekin Baca · Stuttgart · MMXXVI</span><span>Medieninformatik B.Sc., HdM Stuttgart</span><a href="#top" class="ink" style="text-decoration:none">Nach oben ↑</a></div>
+  </footer>
+</div>
+
+<div class="float-media" id="float" aria-hidden="true"><video muted loop playsinline preload="none"></video></div>
+
+<script>
+(function(){
+  var doc=document.documentElement;
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+  doc.classList.add('js');
+  var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+
+  /* Intro (einmal pro Sitzung, überspringbar) */
+  (function(){
+    var intro=$('#intro'); var seen=false;
+    try{seen=sessionStorage.getItem('eb-intro')==='1'}catch(e){}
+    if(reduce||seen) return;
+    try{sessionStorage.setItem('eb-intro','1')}catch(e){}
+    var name=$('#introName'), letters=[]; 'EKIN BACA'.split('').forEach(function(ch){var s=document.createElement('span');s.textContent=ch===' '?' ':ch;name.appendChild(s);letters.push(s)});
+    intro.hidden=false; doc.style.overflow='hidden';
+    var bar=$('#introBar'), cnt=$('#introCount'), t0=performance.now(), dur=1500, done=false;
+    function finish(){ if(done) return; done=true; intro.classList.add('out'); doc.style.overflow=''; setTimeout(function(){intro.hidden=true},850); }
+    function tick(t){ if(done) return; var p=Math.min(1,(t-t0)/dur); var e=1-Math.pow(1-p,3);
+      letters.forEach(function(s,k){ var q=Math.min(1,Math.max(0,(t-t0-k*45)/650)); var eq=1-Math.pow(1-q,4); s.style.transform='translateY('+((1-eq)*110)+'%)'; });
+      bar.style.transform='scaleX('+e+')'; cnt.textContent=String(Math.round(e*100)).padStart(3,'0')+' / 100';
+      if(p<1) requestAnimationFrame(tick); else setTimeout(finish,180); }
+    requestAnimationFrame(tick);
+    setTimeout(finish,2600); /* Notbremse, falls der Tab im Hintergrund keine Frames zeichnet */
+    window.addEventListener('keydown',finish,{once:true}); intro.addEventListener('click',finish);
+  })();
+
+  /* Uhr Stuttgart */
+  var clock=$('#clock'); var fmt;
+  try{fmt=new Intl.DateTimeFormat('de-DE',{timeZone:'Europe/Berlin',hour:'2-digit',minute:'2-digit',second:'2-digit'})}catch(e){}
+  function tickClock(){ if(fmt) clock.textContent=fmt.format(new Date()); }
+  tickClock(); setInterval(tickClock,1000);
+
+  /* Rotierendes Wort */
+  (function(){
+    var rot=$('#rot'); var items=$$('span',rot); var i=0;
+    function size(){ rot.style.width=items[i].offsetWidth+'px'; }
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(size); size();
+    window.addEventListener('resize',size);
+    if(reduce) return;
+    setInterval(function(){
+      var cur=items[i]; i=(i+1)%items.length; var nx=items[i];
+      cur.classList.remove('on'); cur.classList.add('off');
+      nx.classList.remove('off'); void nx.offsetWidth; nx.classList.add('on');
+      rot.style.width=nx.offsetWidth+'px';
+      setTimeout(function(){
+        /* ohne Animation zurück in die Warteposition unten, sonst fährt das Wort sichtbar durch die Box */
+        cur.style.transition='none'; cur.classList.remove('off'); void cur.offsetWidth; cur.style.transition='';
+      },750);
+    },2400);
+  })();
+
+  /* Laufband: Inhalt verdoppeln für nahtlose Schleife */
+  var track=$('#track'); track.innerHTML+=track.innerHTML;
+
+  /* Fußzeile: Buchstaben */
+  var giant=$('#giant'); 'EKIN BACA'.split('').forEach(function(ch){var s=document.createElement('span');s.setAttribute('aria-hidden','true');if(ch===' '){s.className='sp'}else{s.textContent=ch}giant.appendChild(s)});
+
+  /* Einblenden beim Scrollen: nur was beim Laden unterhalb des Bildschirms liegt */
+  if(!reduce && 'IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -8% 0px'});
+    $$('.sec-head, h2.big, .offer, .stage, .num, .step, .about figure, .about p, .faq details, .builder > div, .giant').forEach(function(el,idx){
+      if(el.getBoundingClientRect().top>window.innerHeight){ el.classList.add('rv'); el.style.transitionDelay=((idx%4)*0.06)+'s'; io.observe(el); }
+    });
+  }
+
+  /* Fortschritt, Kopfzeile, aktiver Menüpunkt, Ablauf-Linie */
+  var prog=$('#progress'), head=$('header.site'), fill=$('#stepsFill'), steps=$('#steps');
+  var navLinks=$$('header.site nav a'); var secs=navLinks.map(function(a){return $(a.getAttribute('href'))});
+  function onScroll(){
+    var h=doc.scrollHeight-window.innerHeight; var p=h>0?window.scrollY/h:0;
+    prog.style.transform='scaleX('+p+')';
+    head.classList.toggle('scrolled',window.scrollY>8);
+    var r=steps.getBoundingClientRect(); var vh=window.innerHeight;
+    var sp=Math.min(1,Math.max(0,(vh*0.85-r.top)/(r.height+vh*0.35)));
+    fill.style.transform='scaleX('+(reduce?1:sp)+')';
+    var cur=-1; secs.forEach(function(s,k){ if(s && s.getBoundingClientRect().top<vh*0.4) cur=k; });
+    navLinks.forEach(function(a,k){a.classList.toggle('active',k===cur)});
+  }
+  window.addEventListener('scroll',onScroll,{passive:true}); window.addEventListener('resize',onScroll); onScroll();
+
+  /* Zähler */
+  if(!reduce && 'IntersectionObserver' in window){
+    var cio=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(!e.isIntersecting) return; cio.unobserve(e.target);
+      var el=e.target, to=+el.dataset.to, suf=el.dataset.suffix||'', t0=performance.now(), d=1400;
+      (function f(t){var p=Math.min(1,(t-t0)/d), v=Math.round(to*(1-Math.pow(1-p,4)));
+        el.textContent=v.toLocaleString('de-DE')+(p===1?suf:''); if(p<1) requestAnimationFrame(f);})(t0);
+    })},{threshold:.6});
+    $$('.num b').forEach(function(b){cio.observe(b)});
+  }
+
+  /* Videos nur abspielen, wenn sichtbar */
+  if('IntersectionObserver' in window){
+    var vio=new IntersectionObserver(function(es){es.forEach(function(e){
+      var v=e.target; if(e.isIntersecting && !reduce){ if(v.preload==='none') v.preload='metadata'; var pr=v.play(); if(pr&&pr.catch) pr.catch(function(){}); } else { v.pause(); }
+    })},{threshold:.25});
+    $$('.inline-media video').forEach(function(v){vio.observe(v)});
+  }
+
+  /* Arbeit: Bühne wechselt mit dem Projekt */
+  var items=$$('.work-item'), layers=$$('#layers > *'), cap=$('#stageCap'), idx=$('#stageIdx'), stageVisible=false;
+  function syncStage(){ layers.forEach(function(l){ if(l.tagName!=='VIDEO') return; if(l.classList.contains('on') && stageVisible && !reduce){ var pr=l.play(); if(pr&&pr.catch) pr.catch(function(){}); } else l.pause(); }); }
+  function activate(i){
+    items.forEach(function(it,k){it.classList.toggle('active',k===i)});
+    layers.forEach(function(l,k){ l.classList.toggle('on',k===i); });
+    cap.textContent=$('h3',items[i]).textContent; idx.textContent=String(i+1).padStart(2,'0')+' / '+String(items.length).padStart(2,'0');
+    syncStage();
+  }
+  if('IntersectionObserver' in window){
+    var wio=new IntersectionObserver(function(es){es.forEach(function(e){ if(e.isIntersecting) activate(+e.target.dataset.i) })},{rootMargin:'-45% 0px -45% 0px'});
+    items.forEach(function(it){wio.observe(it)});
+    var sio=new IntersectionObserver(function(es){ stageVisible=es[0].isIntersecting; syncStage(); },{threshold:.2});
+    sio.observe($('#layers'));
+  }
+  if(fine) items.forEach(function(it){ it.addEventListener('mouseenter',function(){activate(+it.dataset.i)}) });
+
+  /* Angebot: Vorschau folgt dem Mauszeiger */
+  if(fine && !reduce){
+    var fl=$('#float'), fv=$('video',fl), x=0,y=0,tx=0,ty=0,raf=0,cur=null;
+    function loop(){ x+=(tx-x)*.16; y+=(ty-y)*.16; fl.style.left=x+'px'; fl.style.top=y+'px'; raf=requestAnimationFrame(loop); }
+    $$('.offer').forEach(function(o){
+      o.addEventListener('mouseenter',function(e){
+        tx=x=e.clientX+190; ty=y=e.clientY; if(cur!==o.dataset.video){ cur=o.dataset.video; fv.poster=o.dataset.poster; fv.src=cur; }
+        var pr=fv.play(); if(pr&&pr.catch) pr.catch(function(){}); fl.classList.add('show'); if(!raf) loop();
+      });
+      o.addEventListener('mousemove',function(e){ tx=e.clientX+190; ty=e.clientY; });
+      o.addEventListener('mouseleave',function(){ fl.classList.remove('show'); fv.pause(); cancelAnimationFrame(raf); raf=0; });
+    });
+  }
+
+  /* Magnetische Buttons */
+  if(fine && !reduce){
+    $$('.magnetic').forEach(function(b){
+      b.addEventListener('mousemove',function(e){var r=b.getBoundingClientRect(); var dx=(e.clientX-r.left-r.width/2)*.22, dy=(e.clientY-r.top-r.height/2)*.3; b.style.transform='translate('+dx+'px,'+dy+'px)';});
+      b.addEventListener('mouseleave',function(){b.style.transform='';});
+    });
+  }
+
+  /* FAQ: weiches Auf- und Zuklappen */
+  $$('.faq details').forEach(function(d){
+    var s=$('summary',d), a=$('.ans',d);
+    s.addEventListener('click',function(ev){
+      if(reduce || !a.animate) return; ev.preventDefault();
+      if(d.open){ var h=a.scrollHeight; a.animate([{height:h+'px'},{height:'0px'}],{duration:320,easing:'cubic-bezier(.2,.7,0,1)'}).onfinish=function(){d.open=false}; }
+      else { d.open=true; var h2=a.scrollHeight; a.animate([{height:'0px'},{height:h2+'px'}],{duration:380,easing:'cubic-bezier(.2,.7,0,1)'}); }
+    });
+  });
+
+  /* Anfrage-Baukasten */
+  var msg=$('#msg'), edited=false;
+  function pick(g){ var b=$('[data-group="'+g+'"] .chip[aria-pressed="true"]'); return b?b.textContent:''; }
+  function build(){
+    var t='Hallo Ekin,\n\nich interessiere mich für: '+pick('need')+'.\nZeitrahmen: '+pick('time')+'.\nBudget: '+pick('budget')+'.\n\nKurz zu unserem Betrieb und was heute Zeit kostet:\n\n\nViele Grüße\n';
+    if(!edited) msg.value=t;
+  }
+  $$('.group[data-group]').forEach(function(g){
+    $$('.chip',g).forEach(function(c){ c.addEventListener('click',function(){ $$('.chip',g).forEach(function(o){o.setAttribute('aria-pressed','false')}); c.setAttribute('aria-pressed','true'); edited=false; build(); }); });
+  });
+  msg.addEventListener('input',function(){edited=true;});
+  build();
+
+  function copy(text,btn,selectEl){
+    function ok(){ var o=btn.innerHTML; btn.textContent='Kopiert'; setTimeout(function(){btn.innerHTML=o},1600); }
+    function fallback(){ if(selectEl.select){selectEl.focus();selectEl.select()} else {var r=document.createRange();r.selectNodeContents(selectEl);var s=window.getSelection();s.removeAllRanges();s.addRange(r)} ok(); }
+    try{ navigator.clipboard.writeText(text).then(ok,fallback); }catch(e){ fallback(); }
+  }
+  $('#copyMsg').addEventListener('click',function(){copy(msg.value,this,msg)});
+  $('#copyMail').addEventListener('click',function(){copy($('#mailtext').textContent,this,$('#mailtext'))});
+})();
+</script>
+
+</body>
+</html>
